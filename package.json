@@ -1,0 +1,30 @@
+{
+  "name": "bestnewsmedia",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "vite",
+    "server": "node server/index.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "backfill-images": "node server/backfillImages.js"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.9.1",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.0"
+  }
+}
