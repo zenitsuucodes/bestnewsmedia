@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/seedCatalog.js && npm run build",
+  "buildCommand": "npm run build:client",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }

@@ -12,6 +12,7 @@ async function main() {
   const cache = { articles: all, byCategory, fetchedAt: Date.now() };
   await fs.writeFile(OUT, JSON.stringify(cache));
   console.log(`Wrote ${all.length} articles to public/catalog.json`);
+  console.log('Seed complete.');
 }
 
 main().catch((err) => {

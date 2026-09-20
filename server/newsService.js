@@ -4,8 +4,9 @@ import { getUsedSourceUrls } from './imageStore.js';
 import { readJson, writeJson, readStaticCatalog } from './persistence.js';
 
 const CACHE_TTL = 30 * 60 * 1000;
-const PRIORITY_IMAGE_COUNT = 60;
-const CRON_IMAGE_BATCH = 80;
+const PRIORITY_IMAGE_COUNT = 40;
+const CRON_IMAGE_BATCH = 60;
+const IS_VERCEL = Boolean(process.env.VERCEL);
 
 let memoryCache = null;
 let refreshPromise = null;
@@ -30,9 +31,10 @@ export async function refreshArticles({ imageBatch = PRIORITY_IMAGE_COUNT } = {}
 
   const { all, byCategory } = await loadArticleCatalog();
 
-  const needsImage = all.filter((a) => !a.image).slice(0, imageBatch);
+  const batch = IS_VERCEL ? Math.min(imageBatch, 40) : imageBatch;
+  const needsImage = all.filter((a) => !a.image).slice(0, batch);
   if (needsImage.length) {
-    await attachImagesToArticles(needsImage, 5);
+    await attachImagesToArticles(needsImage, 4);
   }
 
   const cache = { articles: all, byCategory, fetchedAt: Date.now() };
