@@ -17,6 +17,6 @@ export default async function handler(req, res) {
     sendJson(res, 200, filtered.slice(0, Number(limit)));
   } catch (err) {
     console.error('articles error:', err);
-    sendJson(res, 500, { error: 'Unable to load articles' });
+    sendJson(res, 500, { error: 'Unable to load articles', detail: err.message });
   }
 }

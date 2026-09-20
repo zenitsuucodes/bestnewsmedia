@@ -24,6 +24,7 @@ async function loadManifest() {
 }
 
 async function saveManifest() {
+  if (process.env.VERCEL && !useBlobStorage()) return;
   await writeJson(MANIFEST_NAME, manifest);
 }
 

@@ -3,7 +3,6 @@ import { attachImagesToArticles, initImageSources } from './imageSearch.js';
 import { getUsedSourceUrls } from './imageStore.js';
 import { readJson, writeJson, readStaticCatalog } from './persistence.js';
 
-const CACHE_TTL = 30 * 60 * 1000;
 const PRIORITY_IMAGE_COUNT = 40;
 const CRON_IMAGE_BATCH = 60;
 const IS_VERCEL = Boolean(process.env.VERCEL);
@@ -31,7 +30,7 @@ export async function refreshArticles({ imageBatch = PRIORITY_IMAGE_COUNT } = {}
 
   const { all, byCategory } = await loadArticleCatalog();
 
-  const batch = IS_VERCEL ? Math.min(imageBatch, 40) : imageBatch;
+  const batch = IS_VERCEL ? Math.min(imageBatch, 30) : imageBatch;
   const needsImage = all.filter((a) => !a.image).slice(0, batch);
   if (needsImage.length) {
     await attachImagesToArticles(needsImage, 4);
@@ -53,7 +52,7 @@ export async function attachMoreImages(batchSize = CRON_IMAGE_BATCH) {
   const needsImage = cache.articles.filter((a) => !a.image).slice(0, batchSize);
   if (!needsImage.length) return cache;
 
-  await attachImagesToArticles(needsImage, 5);
+  await attachImagesToArticles(needsImage, 4);
 
   cache.fetchedAt = Date.now();
   await saveCache(cache);
@@ -61,16 +60,18 @@ export async function attachMoreImages(batchSize = CRON_IMAGE_BATCH) {
 }
 
 export async function getArticles() {
-  const stale = !memoryCache || Date.now() - memoryCache.fetchedAt > CACHE_TTL;
-
-  if (memoryCache && !stale) {
+  if (memoryCache?.articles?.length) {
     return memoryCache;
   }
 
   const persisted = await loadPersistedCache();
-  if (persisted && Date.now() - persisted.fetchedAt < CACHE_TTL) {
+  if (persisted?.articles?.length) {
     memoryCache = persisted;
     return persisted;
+  }
+
+  if (IS_VERCEL) {
+    return { articles: [], byCategory: {}, fetchedAt: Date.now() };
   }
 
   if (refreshPromise) {

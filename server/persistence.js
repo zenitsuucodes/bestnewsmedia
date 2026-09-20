@@ -6,6 +6,8 @@ import { put, list } from '@vercel/blob';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_DATA_DIR = path.join(__dirname, 'data');
 
+let blobWarned = false;
+
 export function useBlobStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
@@ -39,7 +41,10 @@ export async function writeJson(name, data) {
   const body = JSON.stringify(data);
 
   if (process.env.VERCEL && !useBlobStorage()) {
-    console.warn(`Skipping persist for ${name}: link Vercel Blob storage for daily cache updates.`);
+    if (!blobWarned) {
+      console.warn('Vercel Blob not linked — cache updates will not persist until Blob storage is added.');
+      blobWarned = true;
+    }
     return;
   }
 
@@ -58,19 +63,28 @@ export async function writeJson(name, data) {
 }
 
 export async function readStaticCatalog() {
+  const urls = new Set();
+
+  if (process.env.VERCEL_URL) {
+    urls.add(`https://${process.env.VERCEL_URL}/catalog.json`);
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    urls.add(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/catalog.json`);
+  }
+  urls.add('https://bestnewsmedia.vercel.app/catalog.json');
+
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) return res.json();
+    } catch {
+      // try next
+    }
+  }
+
   try {
     const raw = await fs.readFile(path.join(__dirname, '..', 'public', 'catalog.json'), 'utf8');
     return JSON.parse(raw);
-  } catch {
-    // fall through
-  }
-
-  if (!process.env.VERCEL_URL) return null;
-
-  try {
-    const res = await fetch(`https://${process.env.VERCEL_URL}/catalog.json`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    return res.json();
   } catch {
     return null;
   }
