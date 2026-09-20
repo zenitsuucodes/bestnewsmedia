@@ -3,8 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { CATEGORIES } from './feeds.js';
-import { loadArticleCatalog } from './articleCatalog.js';
-import { attachImagesToArticles } from './imageSearch.js';
+import { getArticles, refreshArticles } from './newsService.js';
 import { fetchRemoteImage, getCachedImage, cacheImage } from './imageProxy.js';
 import { readStoredImage, getUsedSourceUrls } from './imageStore.js';
 import { initImageSources } from './imageSearch.js';
@@ -12,57 +11,7 @@ import { initImageSources } from './imageSearch.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-
 const PORT = process.env.PORT || 3001;
-const CACHE_TTL = 30 * 60 * 1000;
-
-let cache = { articles: [], byCategory: {}, fetchedAt: 0 };
-let refreshPromise = null;
-let imageJobPromise = null;
-
-async function loadImages(articles) {
-  const priority = articles.slice(0, 40);
-  await attachImagesToArticles(priority);
-
-  const rest = articles.filter((a) => !a.image);
-  if (rest.length) {
-    await attachImagesToArticles(rest, 4);
-  }
-}
-
-async function refreshArticles() {
-  const { all, byCategory } = await loadArticleCatalog();
-
-  cache = { articles: all, byCategory, fetchedAt: Date.now() };
-
-  if (!imageJobPromise) {
-    imageJobPromise = loadImages(all).finally(() => {
-      imageJobPromise = null;
-    });
-  }
-
-  return all;
-}
-
-async function getArticles() {
-  const stale = Date.now() - cache.fetchedAt > CACHE_TTL;
-
-  if (cache.articles.length && !stale) {
-    return cache;
-  }
-
-  if (refreshPromise) {
-    await refreshPromise;
-    return cache;
-  }
-
-  refreshPromise = refreshArticles().finally(() => {
-    refreshPromise = null;
-  });
-
-  await refreshPromise;
-  return cache;
-}
 
 app.use(cors());
 

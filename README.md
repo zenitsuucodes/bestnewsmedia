@@ -1,16 +1,31 @@
-# React + Vite
+# Best News Media
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Universal news site (Est. 2009) — React + Vite frontend, serverless API on Vercel.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+- Frontend: http://localhost:5175
+- API (Express): http://localhost:3001
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Deploy on Vercel
 
-## Expanding the Oxlint configuration
+1. Import this repo in [Vercel](https://vercel.com).
+2. **Storage → Blob → Create store** and connect it to the project (adds `BLOB_READ_WRITE_TOKEN`).
+3. Deploy — build seeds `catalog.json` from RSS feeds; cron jobs keep news and images fresh.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Cron jobs
+
+| Schedule | Endpoint | Purpose |
+|----------|----------|---------|
+| Daily 6:00 UTC | `/api/cron/refresh` | Pull latest RSS articles + attach images |
+| Every 4 hours | `/api/cron/images` | Backfill images for articles still missing them |
+
+## Scripts
+
+- `npm run build` — seed catalog + Vite production build
+- `npm run backfill-images` — local image backfill (uses disk cache)

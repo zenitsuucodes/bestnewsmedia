@@ -2,32 +2,29 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { fetchRemoteImage } from './imageProxy.js';
+import { readJson, writeJson, useBlobStorage } from './persistence.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IMAGE_DIR = path.join(__dirname, 'data', 'images');
-const MANIFEST_PATH = path.join(__dirname, 'data', 'image-manifest.json');
+const MANIFEST_NAME = 'image-manifest.json';
 
-let manifest = {};
-let manifestLoaded = false;
+let manifest = null;
 
-async function ensureDir() {
-  await fs.mkdir(IMAGE_DIR, { recursive: true });
+function useRemoteOnly() {
+  return Boolean(process.env.VERCEL) || useBlobStorage();
+}
+
+function proxyImageUrl(remoteUrl) {
+  return `/api/img?url=${encodeURIComponent(remoteUrl)}`;
 }
 
 async function loadManifest() {
-  if (manifestLoaded) return;
-  try {
-    const raw = await fs.readFile(MANIFEST_PATH, 'utf8');
-    manifest = JSON.parse(raw);
-  } catch {
-    manifest = {};
-  }
-  manifestLoaded = true;
+  if (manifest) return;
+  manifest = (await readJson(MANIFEST_NAME, {})) || {};
 }
 
 async function saveManifest() {
-  await ensureDir();
-  await fs.writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+  await writeJson(MANIFEST_NAME, manifest);
 }
 
 function extFromContentType(contentType = '') {
@@ -37,13 +34,18 @@ function extFromContentType(contentType = '') {
   return '.jpg';
 }
 
-export function getStoredImagePath(articleId) {
+export function getStoredImagePath(articleId, sourceUrl) {
+  if (useRemoteOnly() && sourceUrl) return proxyImageUrl(sourceUrl);
   return `/api/img/a/${articleId}`;
 }
 
 export async function hasStoredImage(articleId) {
   await loadManifest();
   const entry = manifest[articleId];
+  if (!entry?.sourceUrl) return false;
+
+  if (useRemoteOnly()) return true;
+
   if (!entry?.file) return false;
   try {
     await fs.access(path.join(IMAGE_DIR, entry.file));
@@ -54,6 +56,14 @@ export async function hasStoredImage(articleId) {
 }
 
 export async function getStoredImageUrl(articleId) {
+  await loadManifest();
+  const entry = manifest[articleId];
+  if (!entry?.sourceUrl && !entry?.file) return null;
+
+  if (useRemoteOnly()) {
+    return entry.sourceUrl ? proxyImageUrl(entry.sourceUrl) : null;
+  }
+
   if (await hasStoredImage(articleId)) {
     return getStoredImagePath(articleId);
   }
@@ -62,21 +72,29 @@ export async function getStoredImageUrl(articleId) {
 
 export async function saveArticleImage(articleId, remoteUrl) {
   await loadManifest();
-  await ensureDir();
 
-  const existing = await hasStoredImage(articleId);
-  if (existing) {
-    return getStoredImagePath(articleId);
+  const existing = manifest[articleId];
+  if (existing?.sourceUrl || existing?.file) {
+    return getStoredImageUrl(articleId);
+  }
+
+  if (useRemoteOnly()) {
+    manifest[articleId] = {
+      sourceUrl: remoteUrl,
+      savedAt: new Date().toISOString(),
+    };
+    await saveManifest();
+    return proxyImageUrl(remoteUrl);
   }
 
   const result = await fetchRemoteImage(remoteUrl);
   if (!result) return null;
 
+  await fs.mkdir(IMAGE_DIR, { recursive: true });
+
   const ext = extFromContentType(result.contentType);
   const filename = `${articleId}${ext}`;
-  const filePath = path.join(IMAGE_DIR, filename);
-
-  await fs.writeFile(filePath, result.buffer);
+  await fs.writeFile(path.join(IMAGE_DIR, filename), result.buffer);
 
   manifest[articleId] = {
     file: filename,
@@ -92,7 +110,13 @@ export async function saveArticleImage(articleId, remoteUrl) {
 export async function readStoredImage(articleId) {
   await loadManifest();
   const entry = manifest[articleId];
-  if (!entry?.file) return null;
+  if (!entry) return null;
+
+  if (entry.sourceUrl) {
+    return fetchRemoteImage(entry.sourceUrl);
+  }
+
+  if (!entry.file) return null;
 
   try {
     const buffer = await fs.readFile(path.join(IMAGE_DIR, entry.file));
