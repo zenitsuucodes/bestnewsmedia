@@ -1,23 +1,46 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { loadArticleCatalog } from './articleCatalog.js';
 import { attachImagesToArticles, initImageSources } from './imageSearch.js';
 import { getUsedSourceUrls } from './imageStore.js';
-import { readJson, writeJson, readStaticCatalog } from './persistence.js';
+import { readJson, writeJson } from './persistence.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PRIORITY_IMAGE_COUNT = 40;
 const CRON_IMAGE_BATCH = 60;
 const IS_VERCEL = Boolean(process.env.VERCEL);
 
+const BUNDLE_PATHS = [
+  path.join(__dirname, 'catalog.bundle.json'),
+  path.join(process.cwd(), 'server', 'catalog.bundle.json'),
+];
+
 let memoryCache = null;
 let refreshPromise = null;
+let bundledCatalog = null;
+
+async function loadBundledCatalog() {
+  if (bundledCatalog?.articles?.length) return bundledCatalog;
+
+  for (const bundlePath of BUNDLE_PATHS) {
+    try {
+      const raw = await fs.readFile(bundlePath, 'utf8');
+      bundledCatalog = JSON.parse(raw);
+      if (bundledCatalog?.articles?.length) return bundledCatalog;
+    } catch {
+      // try next path
+    }
+  }
+
+  return null;
+}
 
 async function loadPersistedCache() {
   const blobCache = await readJson('catalog.json');
   if (blobCache?.articles?.length) return blobCache;
 
-  const staticCache = await readStaticCatalog();
-  if (staticCache?.articles?.length) return staticCache;
-
-  return null;
+  return loadBundledCatalog();
 }
 
 async function saveCache(cache) {
@@ -38,6 +61,7 @@ export async function refreshArticles({ imageBatch = PRIORITY_IMAGE_COUNT } = {}
 
   const cache = { articles: all, byCategory, fetchedAt: Date.now() };
   await saveCache(cache);
+  bundledCatalog = cache;
   return cache;
 }
 
@@ -71,7 +95,7 @@ export async function getArticles() {
   }
 
   if (IS_VERCEL) {
-    return { articles: [], byCategory: {}, fetchedAt: Date.now() };
+    throw new Error('Article catalog missing from deployment bundle');
   }
 
   if (refreshPromise) {

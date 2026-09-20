@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { getCategories, getBreaking } from './api';
+import { getBreaking } from './api';
+import { CATEGORIES } from './data/categories.js';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import BreakingTicker from './components/BreakingTicker';
@@ -11,11 +12,9 @@ import StaticPage from './pages/StaticPage';
 import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
-  const [categories, setCategories] = useState([]);
   const [breaking, setBreaking] = useState([]);
 
   useEffect(() => {
-    getCategories().then(setCategories).catch(() => {});
     getBreaking().then(setBreaking).catch(() => {});
   }, []);
 
@@ -23,13 +22,13 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <div className="app">
-        <Header categories={categories} />
+        <Header categories={CATEGORIES} />
         <BreakingTicker items={breaking} />
         <main className="container main-content">
           <Routes>
-            <Route path="/" element={<Home categories={categories} />} />
-            <Route path="/category/:slug" element={<Category categories={categories} />} />
-            <Route path="/article/:id" element={<Article categories={categories} />} />
+            <Route path="/" element={<Home categories={CATEGORIES} />} />
+            <Route path="/category/:slug" element={<Category categories={CATEGORIES} />} />
+            <Route path="/article/:id" element={<Article categories={CATEGORIES} />} />
             <Route
               path="/about"
               element={
@@ -100,7 +99,7 @@ export default function App() {
             />
           </Routes>
         </main>
-        <Footer categories={categories} />
+        <Footer categories={CATEGORIES} />
       </div>
     </BrowserRouter>
   );

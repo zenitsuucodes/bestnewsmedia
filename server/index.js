@@ -2,31 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { CATEGORIES } from './feeds.js';
-import { getArticles, refreshArticles } from './newsService.js';
 import { fetchRemoteImage, getCachedImage, cacheImage } from './imageProxy.js';
-import { readStoredImage, getUsedSourceUrls } from './imageStore.js';
-import { initImageSources } from './imageSearch.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-
-app.get('/api/img/a/:articleId', async (req, res) => {
-  try {
-    const stored = await readStoredImage(req.params.articleId);
-    if (!stored) return res.status(404).end();
-
-    res.set('Cache-Control', 'public, max-age=604800, immutable');
-    res.set('Content-Type', stored.contentType);
-    res.send(stored.buffer);
-  } catch {
-    res.status(502).end();
-  }
-});
 
 app.get('/api/img', async (req, res) => {
   const url = req.query.url;
@@ -54,50 +36,6 @@ app.get('/api/img', async (req, res) => {
   }
 });
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', site: 'Best News Media', since: 2009 });
-});
-
-app.get('/api/categories', (_req, res) => {
-  res.json(CATEGORIES);
-});
-
-app.get('/api/articles', async (req, res) => {
-  try {
-    const data = await getArticles();
-    const { category, limit = '50' } = req.query;
-    let filtered = data.articles;
-
-    if (category) {
-      filtered = data.byCategory[category] || [];
-    }
-
-    res.json(filtered.slice(0, Number(limit)));
-  } catch {
-    res.status(500).json({ error: 'Unable to load articles' });
-  }
-});
-
-app.get('/api/articles/:id', async (req, res) => {
-  try {
-    const data = await getArticles();
-    const article = data.articles.find((a) => a.id === req.params.id);
-    if (!article) return res.status(404).json({ error: 'Article not found' });
-    res.json(article);
-  } catch {
-    res.status(500).json({ error: 'Unable to load article' });
-  }
-});
-
-app.get('/api/breaking', async (_req, res) => {
-  try {
-    const data = await getArticles();
-    res.json(data.articles.slice(0, 6).map((a) => ({ id: a.id, title: a.title })));
-  } catch {
-    res.status(500).json({ error: 'Unable to load breaking news' });
-  }
-});
-
 const distPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 app.use((req, res, next) => {
@@ -107,8 +45,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`Best News Media running on http://localhost:${PORT}`);
-  await initImageSources(await getUsedSourceUrls());
-  refreshArticles().catch(() => {});
 });

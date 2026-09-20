@@ -23,7 +23,9 @@ export async function readJson(name, fallback = null) {
       if (!blobs.length) return fallback;
       const res = await fetch(blobs[0].url, { cache: 'no-store' });
       if (!res.ok) return fallback;
-      return res.json();
+      const text = await res.text();
+      if (!text.trimStart().startsWith('{') && !text.trimStart().startsWith('[')) return fallback;
+      return JSON.parse(text);
     } catch {
       return fallback;
     }

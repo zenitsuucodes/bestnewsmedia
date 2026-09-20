@@ -1,19 +1,10 @@
 {
-  "buildCommand": "node scripts/seedCatalog.js && npm run build:client",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/articles.js": { "maxDuration": 60 },
-    "api/articles/[id].js": { "maxDuration": 30 },
-    "api/cron/refresh.js": { "maxDuration": 60 },
-    "api/cron/images.js": { "maxDuration": 60 },
-    "api/img.js": { "maxDuration": 30 },
-    "api/img/a/[articleId].js": { "maxDuration": 30 }
-  },
-  "crons": [
-    { "path": "/api/cron/refresh", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/images", "schedule": "0 */4 * * *" }
-  ]
+    "api/img.js": { "maxDuration": 30 }
+  }
 }

@@ -12,7 +12,7 @@ dist
 server/data/images/
 server/data/image-manifest.json
 server/data/catalog.json
-public/catalog.json
+server/catalog.bundle.json
 dist-ssr
 *.local
 

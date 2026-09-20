@@ -21,18 +21,8 @@ export default function Category({ categories }) {
       .catch(() => { if (active) setArticles([]); })
       .finally(() => { if (active) setLoading(false); });
 
-    const poll = setInterval(() => {
-      getArticles(categoryId)
-        .then((data) => { if (active) setArticles(data); })
-        .catch(() => {});
-    }, 4000);
-
-    const stop = setTimeout(() => clearInterval(poll), 90000);
-
     return () => {
       active = false;
-      clearInterval(poll);
-      clearTimeout(stop);
     };
   }, [categoryId]);
 

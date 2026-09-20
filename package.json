@@ -8,13 +8,11 @@
     "client": "vite",
     "server": "node server/index.js",
     "build": "vite build",
-    "build:client": "vite build",
     "preview": "vite preview",
     "start": "node server/index.js",
     "backfill-images": "node server/backfillImages.js"
   },
   "dependencies": {
-    "@vercel/blob": "^0.27.3",
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",

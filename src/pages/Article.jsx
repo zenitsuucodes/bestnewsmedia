@@ -34,18 +34,8 @@ export default function Article({ categories }) {
 
     load();
 
-    const poll = setInterval(() => {
-      getArticle(id)
-        .then((data) => { if (active) setArticle(data); })
-        .catch(() => {});
-    }, 4000);
-
-    const stop = setTimeout(() => clearInterval(poll), 90000);
-
     return () => {
       active = false;
-      clearInterval(poll);
-      clearTimeout(stop);
     };
   }, [id]);
 

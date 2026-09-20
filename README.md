@@ -1,6 +1,8 @@
 # Best News Media
 
-Universal news site (Est. 2009) — React + Vite frontend, serverless API on Vercel.
+Universal news site (Est. 2009) — React + Vite, static article archive on Vercel.
+
+Articles are stored in `public/catalog.json` and served directly by the frontend. No live RSS fetching at runtime.
 
 ## Local development
 
@@ -9,24 +11,19 @@ npm install
 npm run dev
 ```
 
-- Frontend: http://localhost:5175
-- API (Express): http://localhost:3001
+- Frontend: http://localhost:5175 (loads `/catalog.json`)
+- Image proxy: http://localhost:3001/api/img (for article thumbnails)
 
 ## Deploy on Vercel
 
-1. Import this repo in [Vercel](https://vercel.com).
-2. **Storage → Blob → Create store** and connect it to the project (adds `BLOB_READ_WRITE_TOKEN`).
-3. Deploy — build is fast (Vite only). After deploy, cron jobs pull RSS + attach images. First visit may take ~30s while the API warms the cache.
+Connect the repo — build runs `vite build` and deploys the static site plus `/api/img` for image proxying.
 
-### Cron jobs
+## Updating articles
 
-| Schedule | Endpoint | Purpose |
-|----------|----------|---------|
-| Daily 6:00 UTC | `/api/cron/refresh` | Pull latest RSS articles + attach images |
-| Every 4 hours | `/api/cron/images` | Backfill images for articles still missing them |
+Articles are fixed in `public/catalog.json`. To regenerate manually (optional):
 
-## Scripts
+```bash
+node scripts/seedCatalog.js
+```
 
-- `npm run build` — Vite production build
-- `node scripts/seedCatalog.js` — optional local static catalog (not run on Vercel)
-- `npm run backfill-images` — local image backfill (uses disk cache)
+Then commit the updated `public/catalog.json`.
