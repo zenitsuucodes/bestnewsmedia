@@ -32,7 +32,6 @@ const article = {
     'For now, little is publicly known about the individual bear, including whether it has previously been identified or monitored.',
     'Online, however, the lack of an official name does not appear to matter.',
     'Within a short period of time, “Chungus the Bear” had gone from an unidentified neighborhood visitor to one of the latest viral wildlife images associated with Alaska’s fall bear season.',
-    'And while it will not be appearing in the official Fat Bear Week bracket, social media appears to have already created a separate competition of its own.',
   ],
   category: 'animals',
   image: '/images/chungus-bear.jpg',
