@@ -467,19 +467,22 @@ img {
 }
 
 .article-page__hero {
-  margin: 0 0 2rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
   background: var(--paper-dark);
   border: 1px solid var(--border);
   line-height: 0;
+  text-align: center;
 }
 
 .article-page__hero img {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
-  max-height: none;
+  max-height: min(480px, 55vh);
   object-fit: contain;
   object-position: center;
-  display: block;
+  display: inline-block;
   border: none;
 }
 
