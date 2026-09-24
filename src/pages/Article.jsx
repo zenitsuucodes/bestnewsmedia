@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { getArticle, getArticles } from '../api';
 import { formatDate, categoryLabel, categorySlug } from '../utils/format';
 import { articlePath } from '../utils/slug';
+import { applyArticleSeo, resetSiteSeo } from '../utils/seo';
 import ArticleCard from '../components/ArticleCard';
 import ArticleImage from '../components/ArticleImage';
 
@@ -39,6 +40,12 @@ export default function Article({ categories }) {
       active = false;
     };
   }, [articleSlug]);
+
+  useEffect(() => {
+    if (!article) return undefined;
+    applyArticleSeo(article);
+    return () => resetSiteSeo();
+  }, [article]);
 
   if (loading) return <div className="loading-state">Loading article…</div>;
   if (error || !article) return <div className="error-state">Story not found.</div>;

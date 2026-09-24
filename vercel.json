@@ -2,9 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/article/:slug", "destination": "/api/embed/:slug" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/img.js": { "maxDuration": 30 }
+    "api/img.js": { "maxDuration": 30 },
+    "api/embed/[slug].js": { "maxDuration": 15 }
   }
 }
