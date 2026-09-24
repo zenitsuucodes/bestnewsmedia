@@ -7,7 +7,7 @@ import ArticleCard from '../components/ArticleCard';
 import ArticleImage from '../components/ArticleImage';
 
 export default function Article({ categories }) {
-  const { slug } = useParams();
+  const { slug: articleSlug } = useParams();
   const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ export default function Article({ categories }) {
 
     async function load() {
       try {
-        const data = await getArticle(slug);
+        const data = await getArticle(articleSlug);
         if (!active) return;
         setArticle(data);
         const all = await getArticles(data.category);
@@ -38,18 +38,18 @@ export default function Article({ categories }) {
     return () => {
       active = false;
     };
-  }, [slug]);
+  }, [articleSlug]);
 
   if (loading) return <div className="loading-state">Loading article…</div>;
   if (error || !article) return <div className="error-state">Story not found.</div>;
 
   const label = categoryLabel(article.category, categories);
-  const slug = categorySlug(article.category, categories);
+  const categoryPath = categorySlug(article.category, categories);
 
   return (
     <article className="article-page">
       <div className="article-page__header">
-        <Link to={`/category/${slug}`} className="article-page__category">{label}</Link>
+        <Link to={`/category/${categoryPath}`} className="article-page__category">{label}</Link>
         <h1>{article.title}</h1>
         <div className="article-meta article-meta--large">
           <span>By {article.author}</span>
