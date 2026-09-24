@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getArticles } from '../api';
+import { articlePath } from '../utils/slug';
 import ArticleCard from '../components/ArticleCard';
 import ArticleImage from '../components/ArticleImage';
 
@@ -35,12 +36,12 @@ export default function Home({ categories }) {
       {lead && (
         <section className="lead-story">
           <div className="lead-story__grid">
-            <Link to={`/article/${lead.id}`} className="lead-story__image">
+            <Link to={articlePath(lead)} className="lead-story__image">
               <ArticleImage article={lead} />
             </Link>
             <div className="lead-story__content">
               <span className="section-label">Top Story</span>
-              <h1><Link to={`/article/${lead.id}`}>{lead.title}</Link></h1>
+              <h1><Link to={articlePath(lead)}>{lead.title}</Link></h1>
               <p>{lead.excerpt}</p>
               <div className="article-meta">
                 <span>By {lead.author}</span>
@@ -83,7 +84,7 @@ export default function Home({ categories }) {
             <ul className="sidebar-list">
               {sidebar.map((article) => (
                 <li key={article.id}>
-                  <Link to={`/article/${article.id}`}>{article.title}</Link>
+                  <Link to={articlePath(article)}>{article.title}</Link>
                 </li>
               ))}
             </ul>

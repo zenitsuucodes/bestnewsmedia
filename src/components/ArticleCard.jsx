@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatShortDate, categoryLabel } from '../utils/format';
+import { articlePath } from '../utils/slug';
 import ArticleImage from './ArticleImage';
 
 export default function ArticleCard({ article, categories, variant = 'default' }) {
@@ -7,7 +8,7 @@ export default function ArticleCard({ article, categories, variant = 'default' }
 
   return (
     <article className={`article-card article-card--${variant}`}>
-      <Link to={`/article/${article.id}`} className="article-card__image-wrap">
+      <Link to={articlePath(article)} className="article-card__image-wrap">
         <ArticleImage article={article} />
       </Link>
       <div className="article-card__body">
@@ -15,7 +16,7 @@ export default function ArticleCard({ article, categories, variant = 'default' }
           {label}
         </Link>
         <h3>
-          <Link to={`/article/${article.id}`}>{article.title}</Link>
+          <Link to={articlePath(article)}>{article.title}</Link>
         </h3>
         <p className="article-card__excerpt">{article.excerpt}</p>
         <div className="article-card__meta">

@@ -1,4 +1,5 @@
 import { CATEGORIES } from './data/categories.js';
+import { titleToSlug } from './utils/slug.js';
 
 let catalogPromise = null;
 
@@ -22,14 +23,20 @@ export async function getArticles(category) {
   return data.articles.slice(0, 80);
 }
 
-export async function getArticle(id) {
+export async function getArticle(slugOrId) {
   const data = await loadCatalog();
-  const article = data.articles.find((a) => a.id === id);
+  const article = data.articles.find(
+    (a) => a.slug === slugOrId || a.id === slugOrId,
+  );
   if (!article) throw new Error('Article not found');
   return article;
 }
 
 export async function getBreaking() {
   const data = await loadCatalog();
-  return data.articles.slice(0, 6).map((a) => ({ id: a.id, title: a.title }));
+  return data.articles.slice(0, 6).map((a) => ({
+    id: a.id,
+    slug: a.slug || titleToSlug(a.title),
+    title: a.title,
+  }));
 }

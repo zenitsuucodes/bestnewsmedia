@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { articlePath } from '../utils/slug';
 
 export default function BreakingTicker({ items = [] }) {
   if (!items.length) return null;
@@ -11,7 +12,7 @@ export default function BreakingTicker({ items = [] }) {
       <div className="breaking-ticker__track">
         <div className="breaking-ticker__content">
           {doubled.map((item, i) => (
-            <Link key={`${item.id}-${i}`} to={`/article/${item.id}`} className="breaking-ticker__item">
+            <Link key={`${item.id}-${i}`} to={articlePath(item)} className="breaking-ticker__item">
               {item.title}
             </Link>
           ))}

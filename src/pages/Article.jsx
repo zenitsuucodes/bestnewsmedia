@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getArticle, getArticles } from '../api';
 import { formatDate, categoryLabel, categorySlug } from '../utils/format';
+import { articlePath } from '../utils/slug';
 import ArticleCard from '../components/ArticleCard';
 import ArticleImage from '../components/ArticleImage';
 
 export default function Article({ categories }) {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function Article({ categories }) {
 
     async function load() {
       try {
-        const data = await getArticle(id);
+        const data = await getArticle(slug);
         if (!active) return;
         setArticle(data);
         const all = await getArticles(data.category);
@@ -37,7 +38,7 @@ export default function Article({ categories }) {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [slug]);
 
   if (loading) return <div className="loading-state">Loading article…</div>;
   if (error || !article) return <div className="error-state">Story not found.</div>;

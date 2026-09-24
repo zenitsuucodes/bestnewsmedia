@@ -28,7 +28,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home categories={CATEGORIES} />} />
             <Route path="/category/:slug" element={<Category categories={CATEGORIES} />} />
-            <Route path="/article/:id" element={<Article categories={CATEGORIES} />} />
+            <Route path="/article/:slug" element={<Article categories={CATEGORIES} />} />
             <Route
               path="/about"
               element={
