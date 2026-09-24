@@ -60,5 +60,10 @@ export function buildMetaTags(article, origin) {
 
 export function injectArticleMeta(indexHtml, article, origin) {
   const meta = buildMetaTags(article, origin);
-  return indexHtml.replace(/<title>[\s\S]*?<\/title>/i, meta.trim());
+  return indexHtml
+    .replace(/<meta name="description"[^>]*>\s*/i, '')
+    .replace(/<meta property="og:[^"]+"[^>]*>\s*/gi, '')
+    .replace(/<meta name="twitter:[^"]+"[^>]*>\s*/gi, '')
+    .replace(/<link rel="canonical"[^>]*>\s*/gi, '')
+    .replace(/<title>[\s\S]*?<\/title>/i, meta.trim());
 }
