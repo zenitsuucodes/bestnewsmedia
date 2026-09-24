@@ -29,7 +29,7 @@ const body = [
   'There was never any doubt that the animal was a dog. Yet its DNA did not fit cleanly into any existing modern Japanese breed population.',
   'As analysis continued, its genetic profile appeared unusually close to the small early dogs that lived in Japan thousands of years ago—Jomon-period dogs known only through archaeological remains.',
   'Researchers stress that the living animal is not a perfect duplicate of an excavated specimen. After thousands of years, an exact match would be scientifically impossible. Even so, the combination of genetics and skeletal form suggests the possibility of an isolated surviving line more directly connected to ancient Jomon dogs than any modern breed.',
-  'The team has provisionally classified the animal as part of an unrecorded lineage under the scientific name Jomocyon Japonicus. The rescued male has been named Shiro.',
+  'The team has provisionally classified the animal as part of an unrecorded lineage under the scientific name Shiro Canis. The rescued male has been named Shiro.',
   'The case has drawn special attention in Japan because enthusiasts and preservation groups have long been fascinated by ancient dog types.',
   'For decades, organizations such as Shibaho have selectively bred certain shiba lines to preserve or recreate traits associated with ancient Jomon dogs—shallow stops, strong teeth, compact bodies, and a more primitive temperament.',
   'Those programs, however, were modern preservation efforts based on archaeological interpretation and selective breeding. They were not proof of a pure surviving Jomon population.',
