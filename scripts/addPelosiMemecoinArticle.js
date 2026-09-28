@@ -32,9 +32,6 @@ const body = [
   'The confrontation establishes a debate over where ethical restrictions should begin: with a ban on officials entering the market, or with tightly regulated participation. Pelosi’s position would place the burden on lawmakers to demonstrate that oversight can prevent the conflicts a prohibition seeks to eliminate.',
 ];
 
-const heroUrl =
-  'https://upload.wikimedia.org/wikipedia/commons/4/4b/Nancy_Pelosi_113th_Congress_portrait.jpg';
-
 const article = {
   id: makeId(title),
   title,
@@ -42,7 +39,7 @@ const article = {
   excerpt: body[0],
   body,
   category: 'politics',
-  image: `/api/img?url=${encodeURIComponent(heroUrl)}`,
+  image: '/images/pelosi-memecoin.png',
   author: 'Best News Media Staff',
   publishedAt: '2026-09-28T14:00:00.000Z',
   readTime: estimateReadTime(body),
