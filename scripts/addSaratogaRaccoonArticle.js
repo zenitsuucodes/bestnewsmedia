@@ -46,7 +46,7 @@ const article = {
   category: 'animals',
   image: '/images/saratoga-raccoon.jpg',
   author: 'Best News Media Staff',
-  publishedAt: '2026-09-29T04:00:00.000Z',
+  publishedAt: '2026-10-01T19:00:00.000Z',
   readTime: estimateReadTime(body),
 };
 
